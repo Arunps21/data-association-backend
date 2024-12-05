@@ -86,63 +86,63 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", isLoggedIn, async(req, res) => {
-    let user = await userModel.findOne({email : req.user.email}).populate("posts")
-    res.render("profile",{user});
+app.get("/profile", isLoggedIn, async (req, res) => {
+  let user = await userModel
+    .findOne({ email: req.user.email })
+    .populate("posts");
+  res.render("profile", { user });
 });
 
-app.post("/post", isLoggedIn, async (req,res)=>{
-    let user = await userModel.findOne({email : req.user.email})
-    const {content} = req.body
-    let post = await postModel.create({
-        user : user._id,
-        content,
-    })
-    user.posts.push(post._id)
-    await user.save()
-    res.redirect("/profile")
-})
+app.post("/post", isLoggedIn, async (req, res) => {
+  let user = await userModel.findOne({ email: req.user.email });
+  const { content } = req.body;
+  let post = await postModel.create({
+    user: user._id,
+    content,
+  });
+  user.posts.push(post._id);
+  await user.save();
+  res.redirect("/profile");
+});
 
 app.get("/logout", (req, res) => {
   res.cookie("token", "");
   res.redirect("/login");
 });
 
-app.get("/like/:id",isLoggedIn,async(req,res)=>{
-  const {id} = req.params
-  const userid = req.user.userid
-  let post = await postModel.findOne({_id : id}).populate("user")
-  if(post.likes.indexOf(userid) === -1){
-    post.likes.push(userid)
+app.get("/like/:id", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+  const userid = req.user.userid;
+  let post = await postModel.findOne({ _id: id }).populate("user");
+  if (post.likes.indexOf(userid) === -1) {
+    post.likes.push(userid);
+  } else {
+    post.likes.splice(post.likes.indexOf(userid), 1);
   }
-  else{
-    post.likes.splice(post.likes.indexOf(userid),1)
-  }
-  await post.save()
-  res.redirect("/profile")
-})
+  await post.save();
+  res.redirect("/profile");
+});
 
-app.get("/edit/:id",isLoggedIn,async(req,res)=>{
-  const {id}=req.params
-  let post = await postModel.findOne({_id : id}).populate("user")
+app.get("/edit/:id", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+  let post = await postModel.findOne({ _id: id }).populate("user");
   console.log(post);
-  
-  res.render("edit",{post})
-})
 
-app.post("/editpost/:id",isLoggedIn,async(req,res)=>{
-  const {id} = req.params
-  const {content} = req.body
-  await postModel.findOneAndUpdate({_id:id},{content})
-  res.redirect("/profile")
-})
+  res.render("edit", { post });
+});
 
-app.get("/delete/:id",async(req,res)=>{
-  const {id} = req.params
-  await postModel.findOneAndDelete({_id : id})
-  res.redirect("/profile")
-})
+app.post("/editpost/:id", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+  const { content } = req.body;
+  await postModel.findOneAndUpdate({ _id: id }, { content });
+  res.redirect("/profile");
+});
 
+app.get("/delete/:id", async (req, res) => {
+  const { id } = req.params;
+  await postModel.findOneAndDelete({ _id: id });
+  res.redirect("/profile");
+});
 
 app.listen(3000, () => {
   console.log("Server run at http://localhost:3000");
