@@ -5,6 +5,10 @@ const userSchema = new mongoose.Schema({
   email: { type: String },
   password: { type: String },
   age: { type: Number },
+  profilepic : {
+    type : String,
+    default : "default.png"
+  },
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "post" }],
 });
 
